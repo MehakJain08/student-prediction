@@ -10,20 +10,23 @@ def login():
 # Login Authentication
 @auth.route("/login", methods=["POST"])
 def login_user():
-    username = request.form["username"]
-    password = request.form["password"]
+    username = request.form.get("username")
+    password = request.form.get("password")
     cur = mysql.connection.cursor()
-    cur.execute(
-        "SELECT * FROM users WHERE username=%s AND password=%s",
-        (username, password)
-    )
-    user = cur.fetchone()
-    cur.close()
-    if user:
-        session["user"] = user["username"]
-        return redirect(url_for("dashboard.dashboard_page"))
-    flash("Invalid Username or Password")
-    return redirect(url_for("auth.login"))
+
+    try:
+        cur= mysql.connection.cursor()
+        cur.execute(
+            "SELECT * FROM users WHERE username=%s AND password=%s",
+            (username, password)
+        )
+        user = cur.fetchone()
+        cur.close()
+        if user:
+            session["user"] = user["username"]
+            return redirect(url_for("dashboard.dashboard_page"))
+        flash("Invalid Username or Password")
+        return redirect(url_for("auth.login"))
 
 # Logout
 @auth.route("/logout")
